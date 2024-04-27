@@ -29,5 +29,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGroup("/signup").Signup().AddEndpointFilter<ValidationFilter<User>>();
+app.MapGroup("/login").Login();
 
 app.Run();

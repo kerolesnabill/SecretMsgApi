@@ -69,6 +69,17 @@ namespace SecretMsgApi.Services
             return (null, token);
         }
 
+        public static string? Login(string email, string password)
+        {
+            User? user = GetUser(email);
+            if (user is null) return null;
+
+            bool isVaild = BCryptNet.Verify(password, user.Password);
+            if (!isVaild) return null;
+
+            return JwtService.GenerateToken(user.Id.ToString());
+        }
+
         public static User? GetUser(string email)
         {
             User? user = null;
@@ -95,6 +106,7 @@ namespace SecretMsgApi.Services
                         {
                             Id = (int)reader["UserId"],
                             Email = reader["Email"].ToString()!,
+                            Password = reader["Password"].ToString()!,
                         };
                     }
                 }
