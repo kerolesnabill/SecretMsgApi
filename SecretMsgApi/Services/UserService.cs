@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using SecretMsg.Services;
 using SecretMsgApi.Models;
 using System.Data;
 using BCryptNet = BCrypt.Net.BCrypt;
@@ -18,7 +19,7 @@ namespace SecretMsgApi.Services
 
             user.Password = BCryptNet.HashPassword(user.Password);
 
-            using(var connection = new SqlConnection(_constr))
+            using (var connection = new SqlConnection(_constr))
             {
                 SqlCommand command = new SqlCommand("InsertUser", connection);
                 command.CommandType = CommandType.StoredProcedure;
@@ -51,14 +52,21 @@ namespace SecretMsgApi.Services
                 try
                 {
                     connection.Open();
-                    if (command.ExecuteNonQuery() <= 0)
-                        throw new Exception();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                        if (reader.Read())
+                            user.Id = (int) reader["UserId"];
+                        else
+                            throw new Exception();
                 }
                 catch (Exception) { return ("Failed to register", null); }
                 finally { connection.Close(); }
             }
 
-            return (null, "token");
+            string? token = null;
+            if(user.Id != null)
+                token = JwtService.GenerateToken(user.Id.ToString());
+
+            return (null, token);
         }
 
         public static User? GetUser(string email)
