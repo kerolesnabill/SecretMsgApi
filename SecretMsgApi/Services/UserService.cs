@@ -115,6 +115,59 @@ namespace SecretMsgApi.Services
 
             return user;
         }
+
+        public static bool HasUser(int userId)
+        {
+            using (var connection = new SqlConnection(_constr))
+            {
+                string sql = "SELECT UserId From Users WHERE UserId = @Id";
+                SqlCommand sqlCommand = new SqlCommand(sql, connection); ;
+                sqlCommand.CommandType = CommandType.Text;
+                sqlCommand.Parameters.AddWithValue("@Id", userId);
+
+                connection.Open();
+                try
+                {
+                    if (sqlCommand.ExecuteReader().Read())
+                        return true;
+                }
+                catch { return false; }
+                finally { connection.Close(); }
+            }
+            return false;
+        }
+
+        public static (string? Error, string? Message) UpdateUser(User user)
+        {
+            if (!HasUser(user.Id))
+                return ("There is no user with this Id", null);
+
+            using(var connection = new SqlConnection(_constr))
+            {
+                SqlCommand sqlCommand = new SqlCommand("UpdateUser", connection);
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+
+                sqlCommand.Parameters.AddWithValue("UserId", user.Id);
+                sqlCommand.Parameters.AddWithValue("Name", user.Name);
+                sqlCommand.Parameters.AddWithValue("Bio", user.Bio);
+                sqlCommand.Parameters.AddWithValue("Image", user.Image);
+                sqlCommand.Parameters.AddWithValue("NotAvailable", user.NotAvailable);
+
+                connection.Open();
+                try { sqlCommand.ExecuteNonQuery(); }
+                catch { return ("Error while updating user.", null); }
+                finally { connection.Close(); }
+            }
+
+            user.Name = user.Name is null ? null! : "name, ";
+            user.Bio = user.Bio is null ? null : "bio, ";
+            user.Image = user.Image is null ? null : "image, ";
+            string? notAvailable = user.NotAvailable is null ? null : "not available state ";
+
+            string message = $"User's {user.Name}{user.Bio}{user.Image}{notAvailable}was updated.";
+
+            return (null, message);
+        }
     }
 
 }

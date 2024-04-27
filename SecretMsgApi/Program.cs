@@ -30,5 +30,6 @@ app.UseAuthorization();
 
 app.MapGroup("/signup").Signup().AddEndpointFilter<ValidationFilter<User>>();
 app.MapGroup("/login").Login();
+app.MapGroup("/user").User().RequireAuthorization().AddEndpointFilter<ValidationFilter<User>>();
 
 app.Run();
