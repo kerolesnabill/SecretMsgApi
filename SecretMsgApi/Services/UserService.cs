@@ -165,9 +165,9 @@ namespace SecretMsgApi.Services
             return false;
         }
 
-        public static (string? Error, string? Message) UpdateUser(UpdateUserModel user)
+        public static (string? Error, string? Message) UpdateUser(int userId, UpdateUserModel user)
         {
-            if (!HasUser(user.Id))
+            if (!HasUser(userId))
                 return ("There is no user with this Id", null);
 
             using(var connection = new SqlConnection(_constr))
@@ -175,7 +175,7 @@ namespace SecretMsgApi.Services
                 SqlCommand sqlCommand = new SqlCommand("UpdateUser", connection);
                 sqlCommand.CommandType = CommandType.StoredProcedure;
 
-                sqlCommand.Parameters.AddWithValue("UserId", user.Id);
+                sqlCommand.Parameters.AddWithValue("UserId", userId);
                 sqlCommand.Parameters.AddWithValue("Name", user.Name);
                 sqlCommand.Parameters.AddWithValue("Bio", user.Bio);
                 sqlCommand.Parameters.AddWithValue("Image", user.Image);

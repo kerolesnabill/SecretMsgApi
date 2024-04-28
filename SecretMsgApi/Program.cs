@@ -1,7 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
 using SecretMsgApi.Endpoints;
-using SecretMsgApi.Filters;
-using SecretMsgApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,14 +20,20 @@ builder.Services.AddAuthentication()
     });
 builder.Services.AddAuthorization();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGroup("/signup").Signup().AddEndpointFilter<ValidationFilter<User>>();
-app.MapGroup("/login").Login();
-app.MapGroup("/user").User().RequireAuthorization();
+app.MapGroup("api/signup").Signup();
+app.MapGroup("api/login").Login();
+app.MapGroup("api/users").User().RequireAuthorization();
 
 app.Run();

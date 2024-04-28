@@ -8,10 +8,10 @@ namespace SecretMsgApi.Endpoints
     {
         public static RouteGroupBuilder User(this RouteGroupBuilder builder)
         {
-            builder.MapPut("/", async (HttpContext context, UpdateUserModel user) =>
+            builder.MapPut("/me", async (HttpContext context, UpdateUserModel user) =>
             {
-                user.Id = int.Parse(context.User.Claims.First().Value);
-                (string? Error, string? Message) = UserService.UpdateUser(user);
+                int id = int.Parse(context.User.Claims.First().Value);
+                (string? Error, string? Message) = UserService.UpdateUser(id, user);
                 if(Error != null)
                 {
                     context.Response.StatusCode = 400;
@@ -22,7 +22,7 @@ namespace SecretMsgApi.Endpoints
                 await context.Response.WriteAsync(Message!);
             }).AddEndpointFilter<ValidationFilter<UpdateUserModel>>();
 
-            builder.MapPut("/change-email", async(HttpContext context, ChangeEmailModel model) =>
+            builder.MapPut("/me/change-email", async(HttpContext context, ChangeEmailModel model) =>
             {
                 int id = int.Parse(context.User.Claims.First().Value);
                 string? error = UserService.UpdateUserEmail(id, model.NewEmail, model.Password);
@@ -36,7 +36,7 @@ namespace SecretMsgApi.Endpoints
                 await context.Response.WriteAsync("The email was changed.");
             }).AddEndpointFilter<ValidationFilter<ChangeEmailModel>>();
 
-            builder.MapPut("/change-password", async (HttpContext context, ChangePasswordModel model) => 
+            builder.MapPut("/me/change-password", async (HttpContext context, ChangePasswordModel model) => 
             {
                 int id = int.Parse(context.User.Claims.First().Value);
                 string? error = UserService.UpdateUserPassword(id, model.CurrentPassword, model.NewPassword);
@@ -50,7 +50,7 @@ namespace SecretMsgApi.Endpoints
                 await context.Response.WriteAsync("The password was changed.");
             }).AddEndpointFilter<ValidationFilter<ChangePasswordModel>>();
 
-            builder.MapPut("/change-username", async (HttpContext context, UsernameModel model) =>
+            builder.MapPut("/me/change-username", async (HttpContext context, UsernameModel model) =>
             {
                 int id = int.Parse(context.User.Claims.First().Value);
                 string? error = UserService.UpdateUsername(id, model.Username);

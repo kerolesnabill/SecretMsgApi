@@ -5,20 +5,10 @@ namespace SecretMsgApi.Models
     public class User
     {
         public int Id { get; set; }
-
-        [Required ,EmailAddress, MaxLength(255)]
-        public string Email { get; set; }
-
-        [StringLength(50, MinimumLength = 3)]
+        public string? Email { get; set; }
         public string? Username { get; set; }
-
-        [Required, StringLength(50, MinimumLength = 1)]
-        public string Name { get; set; }
-
-        [Required, StringLength(255, MinimumLength = 8)]
-        public string Password { get; set; }
-
-        [MaxLength(500)]
+        public string? Name { get; set; }
+        public string? Password { get; set; }
         public string? Bio { get; set; }
         public string? Image { get; set; }
         public int? Views { get; set; }

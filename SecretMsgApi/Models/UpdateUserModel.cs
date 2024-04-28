@@ -4,8 +4,6 @@ namespace SecretMsgApi.Models
 {
     public class UpdateUserModel
     {
-        public int Id { get; set; }
-
         [StringLength(50, MinimumLength = 1)]
         public string? Name { get; set; }
 
