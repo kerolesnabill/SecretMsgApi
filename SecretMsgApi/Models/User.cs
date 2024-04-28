@@ -9,7 +9,7 @@ namespace SecretMsgApi.Models
         [EmailAddress, MaxLength(255)]
         public string? Email { get; set; }
 
-        [MaxLength(50)]
+        [StringLength(50, MinimumLength = 3)]
         public string? Username { get; set; }
 
         [StringLength(50, MinimumLength = 1)]
