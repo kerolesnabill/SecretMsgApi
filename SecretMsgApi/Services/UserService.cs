@@ -12,59 +12,36 @@ namespace SecretMsgApi.Services
             new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         private static readonly string _constr = _configuration.GetSection("constr").Value!;
 
-        public static (string? Error, string? Token) Register(User user)
+        public static (string? Error, string? Token) Register(string name, string email, string password)
         {
-            if (GetUser(user.Email) != null)
+            if (HasUser(email))
                 return ("This email is already registered", null);
 
-            user.Password = BCryptNet.HashPassword(user.Password);
+            password = BCryptNet.HashPassword(password);
+            int? userId = null;
 
             using (var connection = new SqlConnection(_constr))
             {
                 SqlCommand command = new SqlCommand("InsertUser", connection);
                 command.CommandType = CommandType.StoredProcedure;
-
-                SqlParameter EmailParameter = new SqlParameter
-                {
-                    ParameterName = "Email",
-                    SqlDbType = SqlDbType.VarChar,
-                    Direction = ParameterDirection.Input,
-                    Value = user.Email,
-                };
-                SqlParameter NameParameter = new SqlParameter
-                {
-                    ParameterName = "Name",
-                    SqlDbType = SqlDbType.NVarChar,
-                    Direction = ParameterDirection.Input,
-                    Value = user.Name,
-                };
-                SqlParameter PasswordParameter = new SqlParameter
-                {
-                    ParameterName = "Password",
-                    SqlDbType = SqlDbType.VarChar,
-                    Direction = ParameterDirection.Input,
-                    Value = user.Password,
-                };
-                command.Parameters.Add(NameParameter);
-                command.Parameters.Add(EmailParameter);
-                command.Parameters.Add(PasswordParameter);
+                command.Parameters.AddWithValue("Name", name);
+                command.Parameters.AddWithValue("Email", email);
+                command.Parameters.AddWithValue("Password", password);
 
                 try
                 {
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
-                        if (reader.Read())
-                            user.Id = (int) reader["UserId"];
-                        else
-                            throw new Exception();
+                        if (reader.Read()) userId = (int) reader["UserId"];
+                        else throw new Exception();
                 }
                 catch (Exception) { return ("Failed to register", null); }
                 finally { connection.Close(); }
             }
 
             string? token = null;
-            if(user.Id != null)
-                token = JwtService.GenerateToken(user.Id.ToString());
+            if(userId != null)
+                token = JwtService.GenerateToken(userId.ToString()!);
 
             return (null, token);
         }
@@ -188,7 +165,7 @@ namespace SecretMsgApi.Services
             return false;
         }
 
-        public static (string? Error, string? Message) UpdateUser(User user)
+        public static (string? Error, string? Message) UpdateUser(UpdateUserModel user)
         {
             if (!HasUser(user.Id))
                 return ("There is no user with this Id", null);

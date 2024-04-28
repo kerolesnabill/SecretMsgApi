@@ -9,29 +9,14 @@ namespace SecretMsgApi.Endpoints
         {
             builder.MapPost("/", async (HttpContext context, User user) =>
             {
-                context.Response.StatusCode = 400;
-                if (user.Email is null) {
-                    await context.Response.WriteAsync("The email is required.");
-                    return;
-                }
-
-                if (user.Password is null) {
-                    await context.Response.WriteAsync("The password is required.");
-                    return;
-                }
-
-                if (user.Name is null) {
-                    await context.Response.WriteAsync("The name is required.");
-                    return;
-                }
-
-                (string? Error, string? Token) = UserService.Register(user);
+                (string? Error, string? Token) = UserService.Register(user.Name, user.Email, user.Password);
                 if (Token != null)
                 {
                     await context.Response.WriteAsync(Token);
                     return; 
                 }
 
+                context.Response.StatusCode = 400;
                 await context.Response.WriteAsync(Error!);
             });
 

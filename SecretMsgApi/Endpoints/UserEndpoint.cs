@@ -8,7 +8,7 @@ namespace SecretMsgApi.Endpoints
     {
         public static RouteGroupBuilder User(this RouteGroupBuilder builder)
         {
-            builder.MapPut("/", async (HttpContext context, User user) =>
+            builder.MapPut("/", async (HttpContext context, UpdateUserModel user) =>
             {
                 user.Id = int.Parse(context.User.Claims.First().Value);
                 (string? Error, string? Message) = UserService.UpdateUser(user);
@@ -20,7 +20,7 @@ namespace SecretMsgApi.Endpoints
                 }
 
                 await context.Response.WriteAsync(Message!);
-            }).AddEndpointFilter<ValidationFilter<User>>();
+            }).AddEndpointFilter<ValidationFilter<UpdateUserModel>>();
 
             builder.MapPut("/change-email", async(HttpContext context, ChangeEmailModel model) =>
             {
