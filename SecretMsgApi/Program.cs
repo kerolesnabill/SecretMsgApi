@@ -34,6 +34,7 @@ app.UseAuthorization();
 
 app.MapGroup("api/signup").Signup();
 app.MapGroup("api/login").Login();
-app.MapGroup("api/users").User().RequireAuthorization();
+app.MapGroup("api/user").User().RequireAuthorization();
+app.MapGroup("api/message").Message();
 
 app.Run();
