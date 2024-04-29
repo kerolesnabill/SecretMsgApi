@@ -53,6 +53,20 @@ namespace SecretMsgApi.Endpoints
                 await context.Response.WriteAsync(JsonSerializer.Serialize(message));
             }).RequireAuthorization();
 
+            builder.MapDelete("/{messageId}", async (HttpContext context, int messageId) =>
+            {
+                int userId = int.Parse(context.User.Claims.First().Value);
+                string? error = MessageService.DeleteMessage(userId, messageId);
+                if (error != null)
+                {
+                    context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync(error);
+                    return;
+                }
+
+                await context.Response.WriteAsync("The message was deleted successfully.");
+            }).RequireAuthorization();
+
             return builder;
         }
     }

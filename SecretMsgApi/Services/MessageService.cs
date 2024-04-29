@@ -104,5 +104,32 @@ namespace SecretMsgApi.Services
 
             return (null, message);
         }
+
+        public static string? DeleteMessage(int userId, int messageId)
+        {
+            var (error, message) = GetMessage(userId, messageId);
+            if (message is null) return error;
+
+            if (message.UserId != userId)
+                return "There is no message with this Id.";
+
+            using (var connection = new SqlConnection(_constr))
+            {
+                string sql = "DELETE Messages FROM Messages WHERE MessageId = @MessageId";
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.CommandType = CommandType.Text;
+                command.Parameters.AddWithValue("MessageId", messageId);
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch { return "Error while deleting the message"; }
+                finally { connection.Close(); }
+            }
+
+            return null;
+        }
     }
 }
