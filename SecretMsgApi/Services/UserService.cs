@@ -99,7 +99,7 @@ namespace SecretMsgApi.Services
 
             using (var connection = new SqlConnection(_constr))
             {
-                string sql = "SELECT UserId, Email, Password From Users WHERE UserId = @UserId";
+                string sql = "SELECT * From Users WHERE UserId = @UserId";
                 SqlCommand sqlCommand = new SqlCommand(sql, connection);
                 sqlCommand.CommandType = CommandType.Text;
                 sqlCommand.Parameters.AddWithValue("UserId", id);
@@ -114,6 +114,14 @@ namespace SecretMsgApi.Services
                             Id = (int)reader["UserId"],
                             Email = reader["Email"].ToString()!,
                             Password = reader["Password"].ToString()!,
+                            Username = reader["Username"].ToString()!,
+                            Name = reader["Name"].ToString()!,
+                            Bio = reader["Bio"].ToString()!,
+                            Image = reader["Image"].ToString()!,
+                            Views = (int)reader["Views"],
+                            NotAvailable = (bool)reader["NotAvailable"],
+                            LastSeen = (DateTime)reader["LastSeen"],
+                            CreatedAt = (DateTime)reader["LastSeen"],
                         };
                     }
                 }

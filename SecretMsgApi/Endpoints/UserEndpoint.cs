@@ -8,6 +8,21 @@ namespace SecretMsgApi.Endpoints
     {
         public static RouteGroupBuilder User(this RouteGroupBuilder builder)
         {
+            builder.MapGet("me", async (HttpContext context) =>
+            {
+                int id = int.Parse(context.User.Claims.First().Value);
+                User? user = UserService.GetUser(id);
+                if(user == null)
+                {
+                    context.Response.StatusCode = 404;
+                    await context.Response.WriteAsync("User not found.");
+                    return;
+                }
+
+                user.Password = null;
+                await context.Response.WriteAsJsonAsync(user);
+            });
+
             builder.MapPut("/me", async (HttpContext context, UpdateUserModel user) =>
             {
                 int id = int.Parse(context.User.Claims.First().Value);

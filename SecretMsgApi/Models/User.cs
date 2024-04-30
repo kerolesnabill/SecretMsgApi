@@ -14,6 +14,6 @@ namespace SecretMsgApi.Models
         public int? Views { get; set; }
         public bool? NotAvailable { get; set; }
         public DateTime? LastSeen { get; set; }
-        public DateTime? CreatedAt { get; }
+        public DateTime? CreatedAt { get; set; }
     }
 }
