@@ -10,6 +10,7 @@ namespace SecretMsgApi.Models
         [MaxLength(500)]
         public string? Bio { get; set; }
         public string? Image { get; set; }
-        public bool? NotAvailable { get; set; }
+        public bool? Available { get; set; }
+        public bool? ShowLastSeen { get; set; }
     }
 }

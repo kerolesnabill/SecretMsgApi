@@ -12,7 +12,8 @@ namespace SecretMsgApi.Models
         public string? Bio { get; set; }
         public string? Image { get; set; }
         public int? Views { get; set; }
-        public bool? NotAvailable { get; set; }
+        public bool? Available { get; set; }
+        public bool? ShowLastSeen { get; set; }
         public DateTime? LastSeen { get; set; }
         public DateTime? CreatedAt { get; set; }
     }

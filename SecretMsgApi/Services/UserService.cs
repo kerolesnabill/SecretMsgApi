@@ -119,7 +119,8 @@ namespace SecretMsgApi.Services
                             Bio = reader["Bio"].ToString()!,
                             Image = reader["Image"].ToString()!,
                             Views = (int)reader["Views"],
-                            NotAvailable = (bool)reader["NotAvailable"],
+                            Available = (bool)reader["Available"],
+                            ShowLastSeen = (bool)reader["ShowLastSeen"],
                             LastSeen = (DateTime)reader["LastSeen"],
                             CreatedAt = (DateTime)reader["LastSeen"],
                         };
@@ -187,7 +188,8 @@ namespace SecretMsgApi.Services
                 sqlCommand.Parameters.AddWithValue("Name", user.Name);
                 sqlCommand.Parameters.AddWithValue("Bio", user.Bio);
                 sqlCommand.Parameters.AddWithValue("Image", user.Image);
-                sqlCommand.Parameters.AddWithValue("NotAvailable", user.NotAvailable);
+                sqlCommand.Parameters.AddWithValue("Available", user.Available);
+                sqlCommand.Parameters.AddWithValue("ShowLastSeen", user.ShowLastSeen);
 
                 connection.Open();
                 try { sqlCommand.ExecuteNonQuery(); }
@@ -198,9 +200,10 @@ namespace SecretMsgApi.Services
             user.Name = user.Name is null ? null! : "name, ";
             user.Bio = user.Bio is null ? null : "bio, ";
             user.Image = user.Image is null ? null : "image, ";
-            string? notAvailable = user.NotAvailable is null ? null : "not available state ";
+            string? Available = user.Available is null ? null : " available state, ";
+            string? ShowLastSeen = user.ShowLastSeen is null ? null : " show last seen state ";
 
-            string message = $"User's {user.Name}{user.Bio}{user.Image}{notAvailable}was updated.";
+            string message = $"User's {user.Name}{user.Bio}{user.Image}{Available}{ShowLastSeen}was updated.";
 
             return (null, message);
         }

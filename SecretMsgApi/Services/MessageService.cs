@@ -51,16 +51,19 @@ namespace SecretMsgApi.Services
                 try
                 {
                     connection.Open();
-                    using (var reader = command.ExecuteReader())
-                        if (reader.Read())
-                            foreach (var message in reader)
-                                messages.Add(new Message
-                                {
-                                    Id = (int)reader["MessageId"],
-                                    UserId = userId,
-                                    Body = reader["Body"].ToString()!,
-                                    CreatedAt = DateTime.Parse(reader["CreatedAt"].ToString()!)
-                                });
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            messages.Add(new Message
+                            {
+                                Id = (int)reader["MessageId"],
+                                UserId = userId,
+                                Body = reader["Body"].ToString()!,
+                                CreatedAt = (DateTime)reader["CreatedAt"]
+                            });
+                        }
+                    }
                 }
                 catch { return ("Error while get messages.", null); }
                 finally { connection.Close(); }
