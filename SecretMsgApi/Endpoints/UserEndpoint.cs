@@ -1,6 +1,7 @@
 ﻿using SecretMsgApi.Filters;
 using SecretMsgApi.Models;
 using SecretMsgApi.Services;
+using System.Text.Json;
 
 namespace SecretMsgApi.Endpoints
 {
@@ -8,6 +9,30 @@ namespace SecretMsgApi.Endpoints
     {
         public static RouteGroupBuilder User(this RouteGroupBuilder builder)
         {
+            builder.MapGet("/{username:alpha}", async (HttpContext context, string username) =>
+            {
+                User? user = UserService.GetUserByUsername(username);
+                if (user == null || user.Available == false)
+                {
+                    context.Response.StatusCode = 404;
+                    await context.Response.WriteAsync("User not found or not available.");
+                    return;
+                }
+
+                if (user.ShowLastSeen == false)
+                    user.LastSeen = null;
+
+                var data = new { 
+                    username = user.Username,
+                    name = user.Name,
+                    bio = user.Bio,
+                    image = user.Image,
+                    lastSeen = user.LastSeen,
+                };
+
+                await context.Response.WriteAsJsonAsync(data);
+            });
+
             builder.MapGet("me", async (HttpContext context) =>
             {
                 int id = int.Parse(context.User.Claims.First().Value);
@@ -21,7 +46,7 @@ namespace SecretMsgApi.Endpoints
 
                 user.Password = null;
                 await context.Response.WriteAsJsonAsync(user);
-            });
+            }).RequireAuthorization();
 
             builder.MapPut("/me", async (HttpContext context, UpdateUserModel user) =>
             {
@@ -35,7 +60,7 @@ namespace SecretMsgApi.Endpoints
                 }
 
                 await context.Response.WriteAsync(Message!);
-            }).AddEndpointFilter<ValidationFilter<UpdateUserModel>>();
+            }).RequireAuthorization().AddEndpointFilter<ValidationFilter<UpdateUserModel>>();
 
             builder.MapPut("/me/change-email", async(HttpContext context, ChangeEmailModel model) =>
             {
@@ -49,7 +74,7 @@ namespace SecretMsgApi.Endpoints
                 }
 
                 await context.Response.WriteAsync("The email was changed.");
-            }).AddEndpointFilter<ValidationFilter<ChangeEmailModel>>();
+            }).RequireAuthorization().AddEndpointFilter<ValidationFilter<ChangeEmailModel>>();
 
             builder.MapPut("/me/change-password", async (HttpContext context, ChangePasswordModel model) => 
             {
@@ -63,7 +88,7 @@ namespace SecretMsgApi.Endpoints
                 }
 
                 await context.Response.WriteAsync("The password was changed.");
-            }).AddEndpointFilter<ValidationFilter<ChangePasswordModel>>();
+            }).RequireAuthorization().AddEndpointFilter<ValidationFilter<ChangePasswordModel>>();
 
             builder.MapPut("/me/change-username", async (HttpContext context, UsernameModel model) =>
             {
@@ -77,7 +102,7 @@ namespace SecretMsgApi.Endpoints
                 }
 
                 await context.Response.WriteAsync("Username was changed.");
-            }).AddEndpointFilter<ValidationFilter<UsernameModel>>();
+            }).RequireAuthorization().AddEndpointFilter<ValidationFilter<UsernameModel>>();
 
             return builder;
         }

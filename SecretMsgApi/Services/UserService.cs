@@ -20,6 +20,7 @@ namespace SecretMsgApi.Services
             password = BCryptNet.HashPassword(password);
             int? userId = null;
 
+            email = email.ToLower();
             using (var connection = new SqlConnection(_constr))
             {
                 SqlCommand command = new SqlCommand("InsertUser", connection);
@@ -132,6 +133,38 @@ namespace SecretMsgApi.Services
             return user;
         }
 
+        public static User? GetUserByUsername(string username)
+        {
+            User? user = null;
+
+            using(var connection = new SqlConnection(_constr))
+            {
+                string sql = "SELECT * FROM Users WHERE Username = @Username";
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.CommandType = CommandType.Text;
+                command.Parameters.AddWithValue("Username", username);
+
+                try
+                {
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+                    if (reader.Read())
+                        user = new User {
+                            Username = reader["Username"].ToString(),
+                            Name = reader["Name"].ToString(),
+                            Bio = reader["Bio"].ToString(),
+                            Image = reader["Image"].ToString(),
+                            Available = (bool)reader["Available"],
+                            ShowLastSeen = (bool)reader["ShowLastSeen"],
+                            LastSeen = (DateTime)reader["LastSeen"],
+                        };
+                }
+                catch { return null; }
+                finally { connection.Close(); }
+            }
+
+            return user;
+        }
         public static bool HasUser(int userId)
         {
             using (var connection = new SqlConnection(_constr))
@@ -221,6 +254,7 @@ namespace SecretMsgApi.Services
             if (!isValid)
                 return "Invalid password.";
 
+            newEmail = newEmail.ToLower();
             using (var connection = new SqlConnection(_constr))
             {
                 string sql = "UPDATE Users SET Email = @Email WHERE UserId = @UserId";
@@ -278,6 +312,7 @@ namespace SecretMsgApi.Services
 
             using (var connection = new SqlConnection(_constr))
             {
+                newUsername = newUsername.ToLower();
                 string sql = "SELECT Username FROM Users WHERE Username = @Username";
                 SqlCommand command = new SqlCommand(sql, connection);
                 command.CommandType = CommandType.Text;
