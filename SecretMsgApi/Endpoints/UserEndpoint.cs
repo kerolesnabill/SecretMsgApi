@@ -1,7 +1,6 @@
 ﻿using SecretMsgApi.Filters;
 using SecretMsgApi.Models;
 using SecretMsgApi.Services;
-using System.Text.Json;
 
 namespace SecretMsgApi.Endpoints
 {
@@ -23,6 +22,7 @@ namespace SecretMsgApi.Endpoints
                     user.LastSeen = null;
 
                 var data = new { 
+                    id = user.Id,
                     username = user.Username,
                     name = user.Name,
                     bio = user.Bio,
@@ -33,7 +33,19 @@ namespace SecretMsgApi.Endpoints
                 await context.Response.WriteAsJsonAsync(data);
             });
 
-            builder.MapGet("me", async (HttpContext context) =>
+            builder.MapPut("/update-views/{userId:int}", async (HttpContext context, int userId) => {
+                string? error = UserService.UpdateViews(userId);
+                if (error != null)
+                {
+                    context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync(error);
+                    return;
+                }
+
+                await context.Response.WriteAsync("Views was updated successfully.");
+            });
+
+            builder.MapGet("/me", async (HttpContext context) =>
             {
                 int id = int.Parse(context.User.Claims.First().Value);
                 User? user = UserService.GetUser(id);
@@ -103,6 +115,19 @@ namespace SecretMsgApi.Endpoints
 
                 await context.Response.WriteAsync("Username was changed.");
             }).RequireAuthorization().AddEndpointFilter<ValidationFilter<UsernameModel>>();
+
+            builder.MapPut("/me/last-seen", async (HttpContext context) => {
+                int id = int.Parse(context.User.Claims.First().Value);
+                string? error = UserService.UpdateLastSeen(id);
+                if(error != null)
+                {
+                    context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync(error); 
+                    return;
+                }
+
+                await context.Response.WriteAsync("Last seen was updated successfully.");
+            }).RequireAuthorization();
 
             return builder;
         }

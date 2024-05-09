@@ -150,6 +150,7 @@ namespace SecretMsgApi.Services
                     var reader = command.ExecuteReader();
                     if (reader.Read())
                         user = new User {
+                            Id = (int) reader["UserId"],
                             Username = reader["Username"].ToString(),
                             Name = reader["Name"].ToString(),
                             Bio = reader["Bio"].ToString(),
@@ -348,6 +349,51 @@ namespace SecretMsgApi.Services
             return null;
         }
     
+        public static string? UpdateLastSeen(int userId)
+        {
+            if (!HasUser(userId))
+                return "There is no user with this Id.";
+
+            using(var connection = new SqlConnection(_constr))
+            {
+                SqlCommand command = new SqlCommand("UpdateLastSeen", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("UserId", userId);
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch { return "Error while updating last seen."; }
+                finally { connection.Close(); }
+            }
+
+            return null;
+        }
+
+        public static string? UpdateViews(int userId)
+        {
+            if (!HasUser(userId))
+                return "There is no user with this Id.";
+
+            using (var connection = new SqlConnection(_constr))
+            {
+                SqlCommand command = new SqlCommand("UpdateViews", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("UserId", userId);
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch { return "Error while updating views count."; }
+                finally { connection.Close(); }
+            }
+
+            return null;
+        }
     }
 
 }
