@@ -1,6 +1,7 @@
 ﻿using SecretMsgApi.Filters;
 using SecretMsgApi.Models;
 using SecretMsgApi.Services;
+using System.Reflection;
 
 namespace SecretMsgApi.Endpoints
 {
@@ -128,6 +129,20 @@ namespace SecretMsgApi.Endpoints
 
                 await context.Response.WriteAsync("Last seen was updated successfully.");
             }).RequireAuthorization();
+
+            builder.MapDelete("/me", async (HttpContext context) =>
+            {
+                int id = int.Parse(context.User.Claims.First().Value);
+                string? error = UserService.DeleteUser(id);
+                if (error != null)
+                {
+                    context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync(error);
+                    return;
+                }
+
+                await context.Response.WriteAsync("User was deleted successfully.");
+            });
 
             return builder;
         }

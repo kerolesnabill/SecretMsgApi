@@ -64,19 +64,13 @@ namespace SecretMsgApi.Services
 
             using(var connection = new SqlConnection(_constr))
             {
-                SqlCommand sqlCommand = new SqlCommand("GetUserByEmail", connection);
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                SqlParameter parameter = new SqlParameter
-                {
-                    ParameterName = "Email",
-                    SqlDbType = SqlDbType.VarChar,
-                    Direction = ParameterDirection.Input,
-                    Value = email
-                };
-                sqlCommand.Parameters.Add(parameter);
+                string sql = "SELECT * FROM Users WHERE Email = @Email";
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.CommandType = CommandType.Text;
+                command.Parameters.AddWithValue("Email", email);
 
                 connection.Open();
-                using (SqlDataReader reader = sqlCommand.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -389,6 +383,29 @@ namespace SecretMsgApi.Services
                     command.ExecuteNonQuery();
                 }
                 catch { return "Error while updating views count."; }
+                finally { connection.Close(); }
+            }
+
+            return null;
+        }
+
+        public static string? DeleteUser(int userId)
+        {
+            if (!HasUser(userId))
+                return "There is no user with this Id.";
+
+            using(var connection = new SqlConnection(_constr))
+            {
+                SqlCommand command = new SqlCommand("DeleteUser", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("UserId", userId);
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch { return "Error while deleting the user."; }
                 finally { connection.Close(); }
             }
 

@@ -34,12 +34,12 @@ namespace SecretMsgApi.Services
             return null;
         }
 
-        public static (string? Error, List<Message>? Messages) GetMessages(int userId)
+        public static (string? Error, Stack<Message>? Messages) GetMessages(int userId)
         {
             if (!UserService.HasUser(userId))
                 return ("There is no user with this Id.", null);
 
-            var messages = new List<Message>();
+            var messages = new Stack<Message>();
 
             using(var connection = new SqlConnection(_constr))
             {
@@ -55,7 +55,7 @@ namespace SecretMsgApi.Services
                     {
                         while (reader.Read())
                         {
-                            messages.Add(new Message
+                            messages.Push(new Message
                             {
                                 Id = (int)reader["MessageId"],
                                 UserId = userId,
