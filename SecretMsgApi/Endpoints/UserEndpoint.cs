@@ -9,7 +9,7 @@ namespace SecretMsgApi.Endpoints
     {
         public static RouteGroupBuilder User(this RouteGroupBuilder builder)
         {
-            builder.MapGet("/{username:alpha}", async (HttpContext context, string username) =>
+            builder.MapGet("/{username}", async (HttpContext context, string username) =>
             {
                 User? user = UserService.GetUserByUsername(username);
                 if (user == null || user.Available == false)
