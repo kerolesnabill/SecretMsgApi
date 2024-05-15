@@ -23,7 +23,7 @@ This minimal API project covers key features like managing data (CRUD operations
 
 ## API <a name = "api"></a>
 
- <img width=600px height=150px src="https://github.com/kerolesnabill/SecretMsgApi/blob/master/Images/api.jpg" alt="API">
+ <img src="https://github.com/kerolesnabill/SecretMsgApi/blob/master/Images/api.jpg" alt="API">
 
 ## 🔗 API Live Link <a name = "api-live-link"></a>
 
